@@ -1,5 +1,5 @@
 <?php
-require_once "../controllers/PackageController.php";
+require_once "../controller/PackageController.php";
 
 $data = json_decode(file_get_contents("php://input"), true);
 $path = $_SERVER['PATH_INFO'];
