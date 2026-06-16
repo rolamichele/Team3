@@ -2,16 +2,21 @@
 
 require_once '../config/DB.php';
 
-function getAllcategories(){
+function getAllcategories($limit, $offset){
 
     global $pdo;
 
-    $getAll = $pdo->prepare("SELECT * FROM categories WHERE 1");
+    $getAll = $pdo->prepare(
+        "SELECT * FROM categories
+         LIMIT ? OFFSET ?"
+    );
+
+    $getAll->bindValue(1, $limit, PDO::PARAM_INT);
+    $getAll->bindValue(2, $offset, PDO::PARAM_INT);
 
     $getAll->execute();
 
     return $getAll->fetchAll();
-
 }
 
 
