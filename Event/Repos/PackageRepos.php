@@ -32,3 +32,19 @@ function deletePackage($id) {
     $delete = $pdo->prepare("DELETE FROM `Package` WHERE PackageID = ?");
     return $delete->execute([$id]);
 }
+function canReview($orderId, $userId) {
+    global $pdo;
+
+    $check = $pdo->prepare("SELECT OrderID FROM orders WHERE OrderID = ? AND UserID = ? AND Status = 'Completed' AND IsReviewed = 0");
+    $check->execute([$orderId, $userId]);
+    return $check->fetch(PDO::FETCH_ASSOC);
+}
+
+function addReview($orderId, $userId, $rating, $comment) {
+    global $pdo;
+    if (!canReview($orderId, $userId)) {
+        return false;
+    }
+    $update = $pdo->prepare("UPDATE orders SET Rating = ?, Comment = ?, IsReviewed = 1 WHERE OrderID = ? AND UserID = ?");
+    return $update->execute([$rating,$comment,$orderId,$userId]);
+}
