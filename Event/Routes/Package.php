@@ -1,24 +1,21 @@
 <?php
 require_once "../controller/PackageController.php";
-
 $data = json_decode(file_get_contents("php://input"), true);
-
+if ($_SERVER['REQUEST_METHOD'] == "GET" && isset($_GET['id'])) {
+    GetPackageById();
+}
 if ($_SERVER['REQUEST_METHOD'] == "GET") {
-    getAllPackages();
+    GetPackages();
 }
-
-if ($_SERVER['REQUEST_METHOD'] == "GET" && isset($_GET['id']) ) {
-    getPackageById($_GET['id']);
+if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_GET['review'])) {
+    AddReview();
 }
-
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
-    createPackage($data);
+    CreatePackage();
 }
-
 if ($_SERVER['REQUEST_METHOD'] == "PUT" && isset($_GET['id'])) {
-    updatePackage($_GET['id'], $data);
+    UpdatePackage();
 }
-
 if ($_SERVER['REQUEST_METHOD'] == "DELETE" && isset($_GET['id'])) {
-    deletePackage($_GET['id']);
+    DeletePackage();
 }
