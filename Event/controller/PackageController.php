@@ -73,3 +73,28 @@ function DeletePackage()
         response(500, "Package could not be deleted");
     }
 }
+function AddReview()
+{
+    $data = json_decode(file_get_contents("php://input"), true);
+    if (empty($data)) {
+        response(400, "All fields are required");
+    }
+    $orderId = $data['order_id'];
+    $userId  = $data['user_id']; 
+    $rating  = $data['rating'];
+    $comment = $data['comment'];
+
+    if ($rating < 1 || $rating > 5) {
+        response(400, "Rating must be between 1 and 5");
+    }
+    $canReview = canReview($orderId, $userId);
+    if (!$canReview) {
+        response(403, "You are not allowed to review this order");
+    }
+    $result = addReview($orderId, $userId, $rating, $comment);
+    if ($result) {
+        response(201, "Review added successfully");
+    } else {
+        response(500, "Failed to add review");
+    }
+}
