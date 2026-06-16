@@ -4,7 +4,7 @@ require_once '../config/DB.php';
 
 function getAllcategories($limit, $offset){
 
-    global $pdo;
+    global $connection;
 
     $getAll = $pdo->prepare(
         "SELECT * FROM categories
