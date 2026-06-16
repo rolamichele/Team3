@@ -34,7 +34,7 @@ function getcategoriesById($id) {
 
 function update_categorie($id, $name, $description){
 
-    global $pdo;
+     global $connection;
 
     $sql = "UPDATE categories
             SET Name = ?, Description = ?
@@ -53,8 +53,9 @@ function update_categorie($id, $name, $description){
 
 function delete($id)
 {
-    global $pdo;
-
+    
+    global $connection;
+    
     $sql = "DELETE FROM categories WHERE CategoryID = ?";
 
     $stmt = $pdo->prepare($sql);
