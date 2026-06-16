@@ -4,7 +4,7 @@ require_once "../Repos/categoriesRepos.php";
 
  CategoriesController
 {
-    public function getAll()
+     function getAll()
     {
         try {
 
