@@ -27,4 +27,4 @@ function VerifyToken() {
     } catch (Exception $e) {
         response(401, 'Invalid token.');
     }
-
+}
