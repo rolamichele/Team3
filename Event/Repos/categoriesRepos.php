@@ -4,21 +4,34 @@ require_once '../config/DB.php';
 
 function getAllcategories($limit, $offset){
 
-    global $connection;
+   global $redis;
+    try {
+        $page = isset($_GET['page']) ? $_GET['page'] : 1;
+        $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
+        $offset = ($page - 1) * $limit;
 
-    $getAll = $pdo->prepare(
-        "SELECT * FROM categories
-         LIMIT ? OFFSET ?"
-    );
+      
+        $cacheKey = "categories:page:{$page}:limit:{$limit}";
 
-    $getAll->bindValue(1, $limit, PDO::PARAM_INT);
-    $getAll->bindValue(2, $offset, PDO::PARAM_INT);
+       
+        $cachedData = $redis->get($cacheKey);
 
-    $getAll->execute();
+        if ($cachedData) {
+           
+            response(200, "Success (From Redis Cache)", json_decode($cachedData, true));
+            return;
+        }
 
-    return $getAll->fetchAll();
-}
+        
+        $result = getAllcategories($limit, $offset);
+        
+        $redis->setex($cacheKey, CACHE_EXPIRATION, json_encode($result));
 
+        response(200, "Success", $result);
+
+    } catch (Exception $e) {
+        response(500, $e->getMessage());
+    }
 
 function getcategoriesById($id) {
 
