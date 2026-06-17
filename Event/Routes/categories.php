@@ -2,56 +2,28 @@
 
 require_once "../Controllers/CategoriesController.php";
 
-$categoryController = new CategoriesController();
+$method = $_SERVER['REQUEST_METHOD'];
 
-$requestMethod = $_SERVER['REQUEST_METHOD'];
+if ($method == "GET" && isset($_GET['id'])) {
+    getById($_GET['id']);
+}
+else if ($method == "GET") {
+    getAll();
+}
+else if ($method == "POST") {
+    insert();
+}
+else if ($method == "PUT" && isset($_GET['id'])) {
+    update($_GET['id']);
+}
+else if ($method == "DELETE" && isset($_GET['id'])) {
+    deleteCategory($_GET['id']);
+}
+else {
+    http_response_code(405);
 
-$id = $_GET['id'] ?? null;
-
-switch ($requestMethod) {
-
-    case 'GET':
-
-        if ($id) {
-            $categoryController->getById($id);
-        } else {
-            $categoryController->getAll();
-        }
-
-        break;
-
-    case 'PUT':
-
-        if (!$id) {
-            echo json_encode([
-                "status" => false,
-                "message" => "Category ID is required"
-            ]);
-            exit;
-        }
-
-        $categoryController->update($id);
-        break;
-
-    case 'DELETE':
-
-        if (!$id) {
-            echo json_encode([
-                "status" => false,
-                "message" => "Category ID is required"
-            ]);
-            exit;
-        }
-
-        $categoryController->delete($id);
-        break;
-
-    default:
-
-        http_response_code(405);
-
-        echo json_encode([
-            "status" => false,
-            "message" => "Method Not Allowed"
-        ]);
+    echo json_encode([
+        "status" => false,
+        "message" => "Method Not Allowed"
+    ]);
 }
