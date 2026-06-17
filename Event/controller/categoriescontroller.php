@@ -1,115 +1,73 @@
 <?php
 
 require_once "../Repos/categoriesRepos.php";
+require_once "../helper/response.php"; 
 
-    function getAll()
-    {
-        try {
+function getAll()
+{
+    try {
+        $page = isset($_GET['page']) ? $_GET['page'] : 1;
+        $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
+        $offset = ($page - 1) * $limit;
 
-            $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-            $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 10;
+        $result = getAllcategories($limit, $offset);
 
-            $offset = ($page - 1) * $limit;
+      
+        response(200, "Success", $result);
 
-            $result = getAllcategories($limit, $offset);
-
-            echo json_encode([
-                "status" => true,
-                "data" => $result
-            ]);
-
-      catch (Exception $e) {
-
-            http_response_code(500);
-
-            echo json_encode([
-                "status" => false,
-                "message" => $e->getMessage()
-            ]);
-        }
+    } catch (Exception $e) {
+       
+        response(500, $e->getMessage());
     }
+}
 
-     function getById($id)
-    {
-        try {
+function getById($id)
+{
+    try {
+        $row = getcategoriesById($id);
 
-            $row = getcategoriesById($id);
-
-            if (!$row) {
-
-                http_response_code(404);
-
-                echo json_encode([
-                    "status" => false,
-                    "message" => "Category Not Found"
-                ]);
-
-                return;
-            }
-
-            echo json_encode([
-                "status" => true,
-                "data" => $row
-            ]);
-
-        } catch (Exception $e) {
-
-            http_response_code(500);
-
-            echo json_encode([
-                "status" => false,
-                "message" => $e->getMessage()
-            ]);
+        if (!$row) {
+          
+            response(404, "Category Not Found");
+            return;
         }
+
+        response(200, "Success", $row);
+
+    } catch (Exception $e) {
+        response(500, $e->getMessage());
     }
+}
 
-    function update($id)
-    {
-        try {
+function update($id)
+{
+    try {
+        $body = json_decode(file_get_contents("php://input"), true);
+        $name = $body['Name'] ?? null;
+        $description = $body['Description'] ?? null;
 
-            $body = json_decode(file_get_contents("php://input"), true);
-
-            update_categorie(
-                $id,
-                $body['Name'],
-                $body['Description']
-            );
-
-            echo json_encode([
-                "status" => true,
-                "message" => "Category Updated Successfully"
-            ]);
-
-        } catch (Exception $e) {
-
-            http_response_code(500);
-
-            echo json_encode([
-                "status" => false,
-                "message" => $e->getMessage()
-            ]);
+        if (!$name) {
+            response(400, "Category Name is required");
+            return;
         }
+
+        update_categorie($id, $name, $description);
+
+        response(200, "Category Updated Successfully");
+
+    } catch (Exception $e) {
+        response(500, $e->getMessage());
     }
+}
 
- function delete($id)
-    {
-        try {
+function deleteCategory($id) 
+{
+    try {
+          
+        delete_categorie($id); 
+        response(200, "Category Deleted Successfully");
 
-            delete($id);
-
-            echo json_encode([
-                "status" => true,
-                "message" => "Category Deleted Successfully"
-            ]);
-
-        } catch (Exception $e) {
-
-            http_response_code(500);
-
-            echo json_encode([
-                "status" => false,
-                "message" => $e->getMessage()
-            ]);
-        }
+    } catch (Exception $e) {
+        response(500, $e->getMessage());
     }
 }
