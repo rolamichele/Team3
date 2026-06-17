@@ -2,9 +2,7 @@
 
 require_once "../Repos/categoriesRepos.php";
 
- CategoriesController
-{
-     function getAll()
+    function getAll()
     {
         try {
 
@@ -20,7 +18,7 @@ require_once "../Repos/categoriesRepos.php";
                 "data" => $result
             ]);
 
-        } catch (Exception $e) {
+      catch (Exception $e) {
 
             http_response_code(500);
 
