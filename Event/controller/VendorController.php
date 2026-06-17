@@ -64,19 +64,17 @@ function vendorLogin($data){
         $token=GenerateToken($vendor);
         response(200,"logged in",["token" => $token]);
 }
-function getVendorMe() {
+function getVendorMe()
+{
     $decoded = verifyToken();
-    if ($decoded->role !== 'Vendor') {
-        response(403, "Access restricted to vendors only");
-    }
+    require_vendor($decoded);
+
     $vendor = getVendorId($decoded->user_id);
     if (!$vendor) {
         response(404, "Vendor not found");
     }
- 
     response(200, "Vendor fetched", $vendor);
 }
-
 function getAllVendors()
 {
     global $redis;
