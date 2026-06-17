@@ -7,8 +7,8 @@ function GenerateToken($user)
         $payload=[
             "iat"=>time(),
             "exp"=>time()+ 3600,
-            "user_id"=>$user['UserID'],
-            "role" =>$user['Role']  
+            "user_id"=>$user['id'],
+            "role" =>$user['role']  
             ];
      return JWT::encode($payload,"B0RN0Jx6muUoyGJGmahlRiQJ6mpNXEDQShyHT8bCbYp", 'HS256');
 }

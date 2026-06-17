@@ -1,5 +1,36 @@
 <?php
 require_once "../config/DB.php";
+function getVendorByEmail($email)
+{
+    global $connection;
+    $select=$connection->prepare("select * from vendors where Email = ?");
+            $select->execute([$email]);
+            return $select->fetch(PDO::FETCH_ASSOC);
+}
+function getVendorById($id)
+{
+    global $connection;
+    $select=$connection->prepare("select VendorID, CategoryID, Name, Email, PhoneNumber,
+                Description, ActivityStatus, Role, Review from vendors where VendorID = ?");
+            $select->execute([$id]);
+            return $select->fetch(PDO::FETCH_ASSOC);
+}
+function createVendor($data)
+{
+    global $connection;
+    $insert = "INSERT INTO vendors (CategoryID, Name, Email, Password, PhoneNumber, Description, ActivityStatus, Role)
+     VALUES (?, ?, ?, ?, ?, ?, 'Inactive', 'Vendor')";
+    $query = $connection->prepare($insert);
+    return $query->execute([
+        $data['CategoryID'],
+        $data['Name'],
+        $data['Email'],
+        password_hash($data['Password'], PASSWORD_DEFAULT),
+        $data['PhoneNumber'],
+        $data['Description']
+    ]);
+}
+
 function getVendors($search, $categoryId, $location, $limit, $offset)
 {
     global $connection;

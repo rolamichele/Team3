@@ -2,6 +2,83 @@
 require_once "../helper/response.php";
 require_once "../Repos/vendorRepos.php";
 require_once "../config/cache.php";
+require_once "../helper/jwt.php";
+
+function vendorRegister($data)
+{
+    $name= $data['Name'];
+    $email = $data['Email'];
+    $password = $data['Password' ];
+    $phone = $data['PhoneNumber'];
+    $categoryId = $data['CategoryID'] ?? null;
+    $description = $data['Description'];
+    if (!$name || !$email || !$password) {
+        response(400, "Name, email, and password are required");
+    }
+    if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+        response(400,"email format is wrong");
+    }
+    if(!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$&*+])[A-Za-z\d!@#$&*+]{8,64}$/",$password)){
+    echo "password must include uppercase";}
+    if (!$categoryId) {
+        response(400, "CategoryID is required");
+    }
+    $vendorId = createVendor([
+    'Name' => $name,
+    'Email' => $email,
+    'Password' => $password,
+    'PhoneNumber' => $phone,
+    'CategoryID' => $categoryId,
+    'Description' => $description
+]);
+
+    if (!$vendorId) {
+        response(409, "Email already in use");
+    }
+ 
+    response(201, "Vendor registered successfully");
+}
+
+function vendorLogin($data){
+        $email=$data['Email'];
+        $password=$data['Password'];
+        if (!$email || !$password)
+            {
+                response(400, "Email and password are required");
+            }
+        if(!filter_var($email,FILTER_VALIDATE_EMAIL))
+            {
+                response(400,['Invalid email format']);
+            }
+        $vendor=getVendorByEmail($email);
+        if(!$vendor)
+            {
+                response(404,['vendor not found']);
+            }
+        if(!password_verify($password,$vendor['Password']))
+            {
+                response(401,['Incorrect password']);
+            }
+            if ($vendor['ActivityStatus'] !== 'Active') {
+        response(403, "Your account is not active yet. Please wait for admin approval.");}
+        $token=GenerateToken([
+        'id'   => $vendor['VendorID'],
+        'role' => 'Vendor'
+    ]);
+        response(200,"logged in",["token" => $token]);
+}
+function getVendorMe() {
+    $decoded = verifyToken();
+    if ($decoded->role !== 'Vendor') {
+        response(403, "Access restricted to vendors only");
+    }
+    $vendor = getVendorById($decoded->user_id);
+    if (!$vendor) {
+        response(404, "Vendor not found");
+    }
+ 
+    response(200, "Vendor fetched", $vendor);
+}
 
 function getAllVendors()
 {
