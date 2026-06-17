@@ -1,31 +1,28 @@
 <?php
 
 require_once "../Repos/categoriesRepos.php";
-require_once "../helper/response.php"; 
+require_once "../helper/response.php";
 
 function getAll()
 {
-  global $redis;
+    global $redis;
+
     try {
         $page = isset($_GET['page']) ? $_GET['page'] : 1;
         $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
         $offset = ($page - 1) * $limit;
 
-      
         $cacheKey = "categories:page:{$page}:limit:{$limit}";
 
-       
         $cachedData = $redis->get($cacheKey);
 
         if ($cachedData) {
-           
             response(200, "Success (From Redis Cache)", json_decode($cachedData, true));
             return;
         }
 
-        
         $result = getAllcategories($limit, $offset);
-        
+
         $redis->setex($cacheKey, CACHE_EXPIRATION, json_encode($result));
 
         response(200, "Success", $result);
@@ -33,7 +30,7 @@ function getAll()
     } catch (Exception $e) {
         response(500, $e->getMessage());
     }
-
+}
 
 function getById($id)
 {
@@ -41,7 +38,6 @@ function getById($id)
         $row = getcategoriesById($id);
 
         if (!$row) {
-          
             response(404, "Category Not Found");
             return;
         }
@@ -53,10 +49,33 @@ function getById($id)
     }
 }
 
+function insert()
+{
+    try {
+        $body = json_decode(file_get_contents("php://input"), true);
+
+        $name = $body['Name'] ?? null;
+        $description = $body['Description'] ?? null;
+
+        if (!$name) {
+            response(400, "Category Name is Required");
+            return;
+        }
+
+        insert_category($name, $description);
+
+        response(201, "Category Created Successfully");
+
+    } catch (Exception $e) {
+        response(500, $e->getMessage());
+    }
+}
+
 function update($id)
 {
     try {
         $body = json_decode(file_get_contents("php://input"), true);
+
         $name = $body['Name'] ?? null;
         $description = $body['Description'] ?? null;
 
@@ -74,11 +93,12 @@ function update($id)
     }
 }
 
-function deleteCategory($id) 
+function deleteCategory($id)
 {
     try {
-          
-        delete_categorie($id); 
+
+        delete_categorie($id);
+
         response(200, "Category Deleted Successfully");
 
     } catch (Exception $e) {
