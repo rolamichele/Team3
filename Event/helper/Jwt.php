@@ -28,3 +28,8 @@ function VerifyToken() {
         response(401, 'Invalid token.');
     }
 }
+function require_vendor($verifiedToken) {
+    if($verifiedToken->role !=="vendor"){
+        response(403, 'Access denied. vendor privileges required.');
+    }
+}
