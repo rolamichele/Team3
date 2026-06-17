@@ -1,24 +1,25 @@
 <?php
-require_once "../controller/PackageController.php";
+require_once __DIR__ . "/../controller/PackageController.php";
 
+$method = $_SERVER['REQUEST_METHOD'];
 $data = json_decode(file_get_contents("php://input"), true);
 
-if ($_SERVER['REQUEST_METHOD'] == "GET") {
-    getAllPackages();
+if ($method == "GET" && isset($_GET['id'])) {
+    GET_PACKAGE_BY_ID();
 }
-
-if ($_SERVER['REQUEST_METHOD'] == "GET" && isset($_GET['id']) ) {
-    getPackageById($_GET['id']);
+else if ($method == "GET") {
+    GET_PACKAGES();
 }
-
-if ($_SERVER['REQUEST_METHOD'] == "POST") {
-    createPackage($data);
+else if ($method == "POST" && isset($_GET['review'])) {
+    ADD_REVIEW();
 }
-
-if ($_SERVER['REQUEST_METHOD'] == "PUT" && isset($_GET['id'])) {
-    updatePackage($_GET['id'], $data);
+else if ($method == "POST") {
+    CREATE_PACKAGE();
 }
-
-if ($_SERVER['REQUEST_METHOD'] == "DELETE" && isset($_GET['id'])) {
-    deletePackage($_GET['id']);
+else if ($method == "PUT" && isset($_GET['id'])) {
+    UPDATE_PACKAGE();
 }
+else if ($method == "DELETE" && isset($_GET['id'])) {
+    DELETE_PACKAGE();
+}
+?>
