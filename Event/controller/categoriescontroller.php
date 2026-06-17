@@ -2,7 +2,7 @@
 
 require_once "../Repos/categoriesRepos.php";
 require_once "../helper/response.php";
-
+require_once "../config/cache.php";
 function getAll()
 {
     global $redis;
