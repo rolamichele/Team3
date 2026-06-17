@@ -1,6 +1,6 @@
 <?php
 require_once '../controller/AuthController.php';
-require_once  '../../vendor/autoload.php';
+// require_once  '../../vendor/autoload.php';
 
 $data=json_decode(file_get_contents('php://input'),true);
 $path=$_SERVER['PATH_INFO'];

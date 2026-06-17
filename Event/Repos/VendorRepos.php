@@ -7,14 +7,14 @@ function getVendorByEmail($email)
             $select->execute([$email]);
             return $select->fetch(PDO::FETCH_ASSOC);
 }
-function getVendorById($id)
-{
-    global $connection;
-    $select=$connection->prepare("select VendorID, CategoryID, Name, Email, PhoneNumber,
-                Description, ActivityStatus, Role, Review from vendors where VendorID = ?");
-            $select->execute([$id]);
-            return $select->fetch(PDO::FETCH_ASSOC);
-}
+// function getVendorById($id)
+// {
+//     global $connection;
+//     $select=$connection->prepare("select VendorID, CategoryID, Name, Email, PhoneNumber,
+//                 Description, ActivityStatus, Role, Review from vendors where VendorID = ?");
+//             $select->execute([$id]);
+//             return $select->fetch(PDO::FETCH_ASSOC);
+// }
 function createVendor($data)
 {
     global $connection;
@@ -189,9 +189,7 @@ function getVendorId($vendorId)
 
     return $vendor;
 }
-// ==========================================
-// 1. دالة جلب البيانات النشطة بالصفحات فقط
-// ==========================================
+
 function getActiveVendorsOnly($limit, $offset)
 {
    global $connection;

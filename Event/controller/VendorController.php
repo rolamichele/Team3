@@ -61,12 +61,7 @@ function vendorLogin($data){
             {
                 response(401,['Incorrect password']);
             }
-            if ($vendor['ActivityStatus'] !== 'Active') {
-        response(403, "Your account is not active yet. Please wait for admin approval.");}
-        $token=GenerateToken([
-        'id'   => $vendor['VendorID'],
-        'role' => 'Vendor'
-    ]);
+        $token=GenerateToken($vendor);
         response(200,"logged in",["token" => $token]);
 }
 function getVendorMe() {
@@ -74,7 +69,7 @@ function getVendorMe() {
     if ($decoded->role !== 'Vendor') {
         response(403, "Access restricted to vendors only");
     }
-    $vendor = getVendorById($decoded->user_id);
+    $vendor = getVendorId($decoded->user_id);
     if (!$vendor) {
         response(404, "Vendor not found");
     }
@@ -266,8 +261,8 @@ function getActiveVendors()
 }
 function VendorStatus($connection)
 {
-    //  $verifiedToken = verifyToken();
-    //  require_vendor($verifiedToken);
+     $verifiedToken = verifyToken();
+     require_vendor($verifiedToken);
     $vendorId = $_GET['vendor_id'] ?? null;
 
     if (!$vendorId) {
@@ -284,8 +279,8 @@ function VendorStatus($connection)
 }
 function updateVendor()
 {
-    // $verifiedToken = verifyToken();
-    // require_vendor($verifiedToken);
+    $verifiedToken = verifyToken();
+    require_vendor($verifiedToken);
 
     $vendorId = $_GET['vendor_id'] ?? null;
 
@@ -321,7 +316,7 @@ function updateVendor()
 }
 function getTopRatedVendors()
 {
-    // global $redis;
+    global $redis;
 
     
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -332,14 +327,14 @@ function getTopRatedVendors()
     $offset = ($page - 1) * $pageSize;
 
    
-    // $cacheKey = "vendors:all_top_rated_absolute" . $page . ":size:" . $pageSize;
+    $cacheKey = "vendors:all_top_rated_absolute" . $page . ":size:" . $pageSize;
 
     
-    // $cachedData = $redis->get($cacheKey);
-    // if ($cachedData) {
-    //     $cachedData = json_decode($cachedData, true);
-    //     return response(200, "Top rated vendors fetched successfully (from cache)", $cachedData["data"], $cachedData["meta"]);
-    // }
+    $cachedData = $redis->get($cacheKey);
+    if ($cachedData) {
+        $cachedData = json_decode($cachedData, true);
+        return response(200, "Top rated vendors fetched successfully (from cache)", $cachedData["data"], $cachedData["meta"]);
+    }
 
     
     $vendors = getTopRated($pageSize, $offset);
@@ -355,10 +350,10 @@ function getTopRatedVendors()
         "hasPrev" => $page > 1
     ];
 
-    // $responseData = ["data" => $vendors, "meta" => $meta];
+    $responseData = ["data" => $vendors, "meta" => $meta];
 
     
-    // $redis->setex($cacheKey, 3600, json_encode($responseData));
+    $redis->setex($cacheKey, 3600, json_encode($responseData));
 
     return response(200, "Top rated vendors fetched successfully", $vendors, $meta);
 }

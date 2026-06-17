@@ -1,14 +1,17 @@
 <?php
 require_once '../helper/response.php';
+require_once __DIR__ . '/../vendor/autoload.php'; 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 function GenerateToken($user)
 {
+    $userId = $user['UserID'] ?? $user['VendorID'] ?? null;
+    $role = strtolower($user['Role'] ?? $user['role'] ?? '');
         $payload=[
             "iat"=>time(),
             "exp"=>time()+ 3600,
-            "user_id"=>$user['id'],
-            "role" =>$user['role']  
+            "user_id"=>$userId,
+            "role" => $role
             ];
      return JWT::encode($payload,"B0RN0Jx6muUoyGJGmahlRiQJ6mpNXEDQShyHT8bCbYp", 'HS256');
 }
