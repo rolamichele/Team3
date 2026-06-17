@@ -27,6 +27,11 @@ function verifyToken(){
         response(401, $e->getMessage() );
     }
 }
+function require_vendor($verifiedToken) {
+    if($verifiedToken->role !=="vendor"){
+        response(403, 'Access denied. vendor privileges required.');
+    }
+}
 function require_admin($decodedToken){
     if ($decodedToken->role!=="admin"){
         response(403,"you are not authorized to access this resource");
