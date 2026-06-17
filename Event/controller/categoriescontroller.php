@@ -5,21 +5,35 @@ require_once "../helper/response.php";
 
 function getAll()
 {
+  global $redis;
     try {
         $page = isset($_GET['page']) ? $_GET['page'] : 1;
         $limit = isset($_GET['limit']) ? $_GET['limit'] : 10;
         $offset = ($page - 1) * $limit;
 
-        $result = getAllcategories($limit, $offset);
-
       
+        $cacheKey = "categories:page:{$page}:limit:{$limit}";
+
+       
+        $cachedData = $redis->get($cacheKey);
+
+        if ($cachedData) {
+           
+            response(200, "Success (From Redis Cache)", json_decode($cachedData, true));
+            return;
+        }
+
+        
+        $result = getAllcategories($limit, $offset);
+        
+        $redis->setex($cacheKey, CACHE_EXPIRATION, json_encode($result));
+
         response(200, "Success", $result);
 
     } catch (Exception $e) {
-       
         response(500, $e->getMessage());
     }
-}
+
 
 function getById($id)
 {
