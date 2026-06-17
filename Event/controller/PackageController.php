@@ -115,7 +115,7 @@ function ADD_REVIEW()
 {
     $token = VerifyToken();
 
-    if ($token->role !== 'User') {
+    if ($token->role !== 'Client') {
         response(403, "Access denied. Only users can review.");
         return;
     }
