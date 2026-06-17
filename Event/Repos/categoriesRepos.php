@@ -39,3 +39,17 @@ function getcategoriesById($id) {
 
     return $stmt->execute([$id]);
 }
+function insert($name, $description)
+{
+    global $pdo;
+
+    $sql = "INSERT INTO categories (Name, Description)
+            VALUES (?, ?)";
+
+    $stmt = $pdo->prepare($sql);
+
+    return $stmt->execute([
+        $name,
+        $description
+    ]);
+}
