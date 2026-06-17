@@ -63,7 +63,7 @@ function insert()
         }
 
         insert_category($name, $description);
-
+        $redis->del('categories:all');
         response(201, "Category Created Successfully");
 
     } catch (Exception $e) {
