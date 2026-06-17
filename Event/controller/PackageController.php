@@ -1,100 +1,113 @@
 <?php
-require __DIR__ . "/../repos/PackageRepo.php";
-require __DIR__ . "/../helper/response.php";
+require_once __DIR__ . "/../repos/PackageRepos.php";
+require_once __DIR__ . "/../helper/response.php";
+require_once __DIR__ . "/../config/cache.php";
+require_once __DIR__ . "/../helper/Jwt.php";
 
-function GetPackages()
-{   $packages = getAllPackages();
+function GET_PACKAGES()
+{
+    global $redis;
+    $page  = $_GET['page']  ?? 1;
+    $limit = $_GET['limit'] ?? 10;
+    $cacheKey = "packages_page_{$page}_limit_{$limit}";
+    $cached = $redis->get($cacheKey);
+    if ($cached) {
+        response(200, "Packages retrieved from cache", json_decode($cached, true));
+        return;
+    }
+    $packages = getAllPackages($page, $limit);
     if ($packages) {
+       
+        $redis->setex($cacheKey, 60, json_encode($packages));
         response(200, "Packages retrieved successfully", $packages);
     } else {
         response(404, "No packages found");
     }
 }
-function GetPackageById()
-{  $id = $_GET['id'];
-    $package = getPackageById($id);
-    if ($package == null) {
-        response(404, "Package not found");
-    }
-    response(200, "Package retrieved successfully", $package);
-}
-function CreatePackage()
+function GET_PACKAGE_BY_ID()
 {
-    $data = json_decode(file_get_contents("php://input"), true);
-    if (empty($data)) {
-        response(400, "All fields are required");
-    }
-
-    $title = $data['title'];
-    $description = $data['description'];
-    $price = $data['price'];
-    $activityStat = $data['activityStat'] ?? 1;
-
-    $packageId = createPackage($title,$description,$price,$activityStat);
-    if ($packageId) {
-        response(201, "Package created successfully", [
-            "PackageID" => $packageId
-        ]);
-    } else {
-        response(500, "Package could not be created");
-    }
-}
-function UpdatePackage()
-{
+    global $redis;
     $id = $_GET['id'];
-    $data = json_decode(file_get_contents("php://input"), true);
-    if (empty($data)) {
-        response(400, "No data provided");
+    $cacheKey = "package_{$id}";
+    $cached = $redis->get($cacheKey);
+    if ($cached) {
+        response(200, "Package retrieved from cache", json_decode($cached, true));
+        return;
     }
     $package = getPackageById($id);
-    if ($package == null) {
+    if ($package) {
+        $redis->setex($cacheKey, 60, json_encode($package));
+        response(200, "Package retrieved successfully", $package);
+    } else {
         response(404, "Package not found");
     }
-
-    $title = $data['title'] ?? $package['Title'];
-    $description = $data['description'] ?? $package['Description'];
-    $price = $data['price'] ?? $package['Price'];
-    $activityStat = $data['activityStat'] ?? $package['ActivityStat'];
-
-    $result = updatePackage($id,$title,$description,$price,$activityStat);
-
-    if ($result) {
-        response(200, "Package updated successfully");
-    } else {
-        response(500, "Package could not be updated");
-    }
 }
-function DeletePackage()
-{   $id = $_GET['id'];
-    $result = deletePackage($id);
-    if ($result) {
-        response(200, "Package deleted successfully");
-    } else {
-        response(500, "Package could not be deleted");
-    }
-}
-function AddReview()
+function CREATE_PACKAGE()
 {
+    global $redis;
     $data = json_decode(file_get_contents("php://input"), true);
-    if (empty($data)) {
+    if (!$data) {
         response(400, "All fields are required");
+        return;
     }
-    $orderId = $data['order_id'];
-    $userId  = $data['user_id']; 
-    $rating  = $data['rating'];
-    $comment = $data['comment'];
 
-    if ($rating < 1 || $rating > 5) {
-        response(400, "Rating must be between 1 and 5");
+    $packageId = createPackage(
+        $data['vendorId'],
+        $data['title'],
+        $data['description'],
+        $data['price'],
+        $data['activityStatus'] ?? 'Active');
+    foreach ($redis->keys("packages_page_*") as $key) {
+        $redis->del($key);
     }
-    $canReview = canReview($orderId, $userId);
-    if (!$canReview) {
-        response(403, "You are not allowed to review this order");
+    response(201, "Package created successfully", [
+        "PackageID" => $packageId
+    ]);
+}
+function UPDATE_PACKAGE()
+{
+    global $redis;
+    $id   = $_GET['id'];
+    $data = json_decode(file_get_contents("php://input"), true);
+    $package = getPackageById($id);
+    if (!$package) {
+        response(404, "Package not found");
+        return;
     }
-    $result = addReview($orderId, $userId, $rating, $comment);
+    updatePackage(
+        $id,
+        $data['title']       ?? $package['Title'],
+        $data['description'] ?? $package['Description'],
+        $data['price']       ?? $package['Price'],
+        $data['activityStat'] ?? $package['ActivityStat']
+    );
+    $redis->del("package_{$id}");
+    foreach ($redis->keys("packages_page_*") as $key) {
+        $redis->del($key);
+    }
+    response(200, "Package updated successfully");
+}
+
+function DELETE_PACKAGE()
+{
+    global $redis;
+    $id = $_GET['id'];
+    deletePackage($id);
+    $redis->del("package_{$id}");
+    foreach ($redis->keys("packages_page_*") as $key) {
+        $redis->del($key);
+    }
+    response(200, "Package deleted successfully");
+}
+
+function ADD_REVIEW()
+{
+    $data    = json_decode(file_get_contents("php://input"), true);
+    $decoded = VerifyToken();
+    $result  = addReview($_GET['id'], $decoded->user_id, $data['rating'], $data['comment']);
     if ($result) {
-        response(201, "Review added successfully");
+        response(200, "Review added successfully");
     } else {
-        response(500, "Failed to add review");
+        response(400, "Cannot add review");
     }
 }
