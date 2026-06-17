@@ -17,13 +17,13 @@ function GET_PACKAGES()
     }
     $packages = getAllPackages($page, $limit);
     if ($packages) {
-       
         $redis->setex($cacheKey, 60, json_encode($packages));
         response(200, "Packages retrieved successfully", $packages);
     } else {
         response(404, "No packages found");
     }
 }
+
 function GET_PACKAGE_BY_ID()
 {
     global $redis;
@@ -42,21 +42,25 @@ function GET_PACKAGE_BY_ID()
         response(404, "Package not found");
     }
 }
+
 function CREATE_PACKAGE()
 {
     global $redis;
+    $token = VerifyToken();
+    require_vendor($token);
+
     $data = json_decode(file_get_contents("php://input"), true);
     if (!$data) {
         response(400, "All fields are required");
         return;
     }
-
     $packageId = createPackage(
         $data['vendorId'],
         $data['title'],
         $data['description'],
         $data['price'],
-        $data['activityStatus'] ?? 'Active');
+        $data['activityStatus'] ?? 'Active'
+    );
     foreach ($redis->keys("packages_page_*") as $key) {
         $redis->del($key);
     }
@@ -64,9 +68,13 @@ function CREATE_PACKAGE()
         "PackageID" => $packageId
     ]);
 }
+
 function UPDATE_PACKAGE()
 {
     global $redis;
+    $token = VerifyToken();
+    require_vendor($token);
+
     $id   = $_GET['id'];
     $data = json_decode(file_get_contents("php://input"), true);
     $package = getPackageById($id);
@@ -76,10 +84,10 @@ function UPDATE_PACKAGE()
     }
     updatePackage(
         $id,
-        $data['title']       ?? $package['Title'],
-        $data['description'] ?? $package['Description'],
-        $data['price']       ?? $package['Price'],
-        $data['activityStat'] ?? $package['ActivityStat']
+        $data['title']         ?? $package['Title'],
+        $data['description']   ?? $package['Description'],
+        $data['price']         ?? $package['Price'],
+        $data['activityStatus'] ?? $package['ActivityStatus']
     );
     $redis->del("package_{$id}");
     foreach ($redis->keys("packages_page_*") as $key) {
@@ -91,6 +99,9 @@ function UPDATE_PACKAGE()
 function DELETE_PACKAGE()
 {
     global $redis;
+    $token = VerifyToken();
+    require_vendor($token);
+
     $id = $_GET['id'];
     deletePackage($id);
     $redis->del("package_{$id}");
@@ -102,12 +113,19 @@ function DELETE_PACKAGE()
 
 function ADD_REVIEW()
 {
-    $data    = json_decode(file_get_contents("php://input"), true);
-    $decoded = VerifyToken();
-    $result  = addReview($_GET['id'], $decoded->user_id, $data['rating'], $data['comment']);
+    $token = VerifyToken();
+
+    if ($token->role !== 'Client') {
+        response(403, "Access denied. Only users can review.");
+        return;
+    }
+
+    $data   = json_decode(file_get_contents("php://input"), true);
+    $result = addReview($_GET['id'], $token->user_id, $data['rating'], $data['comment']);
+
     if ($result) {
         response(200, "Review added successfully");
     } else {
-        response(400, "Cannot add review");
+        response(400, "You can only review a completed order that hasn't been reviewed yet.");
     }
 }
