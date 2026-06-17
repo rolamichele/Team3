@@ -1,52 +1,63 @@
 <?php
-require_once '../config/DB.php'
-function getAllcategories(){
-    global $pdo;
-    $getAll = $pdo->prepare("SELECT * FROM `categories` WHERE 1");
+require_once '../config/DB.php';
+
+function getAllcategories()
+{   
+    global $connection; 
+    
+    $getAll = $connection->prepare("SELECT * FROM categories ORDER BY CategoryID DESC");
     $getAll->execute();
-    return $getAll->fetchAll();
+    
+    return $getAll->fetchAll(PDO::FETCH_ASSOC); 
 }
 
-function getcategoriesById($id) {
-    global $pdo;
-    $getById = $pdo->prepare("SELECT * FROM categories` WHERE CategoryID = ?");
+function getcategoriesById($id)
+{
+    global $connection;
+    
+    
+    $getById = $connection->prepare("SELECT * FROM categories WHERE CategoryID = ?");
     $getById->execute([$id]);
-    return $getById->fetch();
+    
+    return $getById->fetch(PDO::FETCH_ASSOC);
 }
 
-
- function update_categorie($id, $name, $description){
-      global $pdo;
-    $sql = "UPDATE Category
-            SET Name = ?, Description = ?
+function update_categorie($id, $name, $description)
+{
+    global $connection;
+    
+    
+    $sql = "UPDATE categories 
+            SET Name = ?, Description = ? 
             WHERE CategoryID = ?";
 
-    $stmt = $this->conn->prepare($sql);
+    $stmt = $connection->prepare($sql);
 
     return $stmt->execute([
         $name,
         $description,
         $id
     ]);
-   
 }
 
- function delete($id)
+function delete_categorie($id) 
 {
-    $sql = "DELETE FROM Categories WHERE CategoryID = ?";
+    global $connection;
+    
+    $sql = "DELETE FROM categories WHERE CategoryID = ?";
 
-    $stmt = $this->conn->prepare($sql);
+    $stmt = $connection->prepare($sql);
 
     return $stmt->execute([$id]);
 }
-function insert($name, $description)
+
+function insert_category($name, $description) 
 {
-    global $pdo;
+    global $connection;
 
-    $sql = "INSERT INTO categories (Name, Description)
-            VALUES (?, ?)";
+    $sql = "INSERT INTO categories (Name, Description) VALUES (?, ?)";
 
-    $stmt = $pdo->prepare($sql);
+    $stmt = $connection->prepare($sql);
 
     return $stmt->execute([
         $name,
