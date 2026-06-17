@@ -85,7 +85,8 @@ function update($id)
         }
 
         update_categorie($id, $name, $description);
-
+        $redis->del('categories:all');
+        $redis->del('category:' . $id);
         response(200, "Category Updated Successfully");
 
     } catch (Exception $e) {
@@ -98,7 +99,8 @@ function deleteCategory($id)
     try {
 
         delete_categorie($id);
-
+        $redis->del('categories:all');
+        $redis->del('category:' . $id);
         response(200, "Category Deleted Successfully");
 
     } catch (Exception $e) {
