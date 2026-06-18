@@ -32,9 +32,9 @@ function createVendor($data)
 }
 function updateVendorStatus($vendorId, $status) {
     global $connection;
-    $select = $connection->prepare("UPDATE vendors SET AcctivatedByAdmin = ? WHERE VendorID = ?");
-    $select->execute([$status, $vendorId]);
-    return $select->rowCount() > 0;
+    $update = $connection->prepare("UPDATE vendors SET AcctivatedByAdmin = ? WHERE VendorID = ?");
+    $update->execute([$status, $vendorId]);
+    return $update->rowCount() > 0;
 }
 function getVendors($search, $categoryId, $location, $day, $startTime, $limit, $offset)
 {

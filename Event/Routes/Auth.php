@@ -25,4 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == "GET" &&$path=='/vendor/me') {
 if ($_SERVER['REQUEST_METHOD']=="PATCH"&&$path=='/admin/toggleVendorStatus'){
     toggleVendorStatus($data['vendorId']);
 }
+if ($_SERVER['REQUEST_METHOD']=="PATCH"&&$path=='/changePassword'){
+    changePassword($data);
+}
 ?>

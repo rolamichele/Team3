@@ -53,4 +53,18 @@ function createUser($data)
         ':role' => $data['Role']
     ]);
 }
+function getUserPasswordById($id) {
+    global $connection;
+    $select = $connection->prepare("SELECT Password FROM users WHERE UserID = ?");
+    $select->execute([$id]);
+    return $select->fetch(PDO::FETCH_ASSOC);
+}
+ 
+function updatePassword($id, $newPassword) {
+    global $connection;
+    $hashed = password_hash($newPassword, PASSWORD_DEFAULT);
+    $update = $connection->prepare("UPDATE users SET Password = ? WHERE UserID = ?");
+    $update->execute([$hashed, $id]);
+    return $update->rowCount() > 0;
+}
 ?>

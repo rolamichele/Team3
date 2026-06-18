@@ -165,4 +165,44 @@ function toggleVendorStatus($vendorId) {
  
     response(200, "Vendor status changed to '$newStatus'");
 }
+function changePassword($data) {
+    $decoded = verifyToken();
+ 
+    $currentPassword = $data['CurrentPassword'] ?? '';
+    $newPassword     = $data['NewPassword']     ?? '';
+    $confirmPassword = $data['ConfirmPassword'] ?? '';
+ 
+    if (!$currentPassword || !$newPassword || !$confirmPassword) {
+        response(400, "CurrentPassword, NewPassword, and ConfirmPassword are required");
+    }
+ 
+    if ($newPassword !== $confirmPassword) {
+        response(400, "NewPassword and ConfirmPassword do not match");
+    }
+ 
+    if (!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$&*+])[A-Za-z\d!@#$&*+]{8,64}$/", $newPassword)) {
+        response(400, "Password must be 8+ chars with uppercase, lowercase, number and special character (!@#$&*+)");
+    }
+    $row = getUserPasswordById($decoded->user_id);
+ 
+    if (!$row) {
+        response(404, "User not found");
+    }
+ 
+    if (!password_verify($currentPassword, $row['Password'])) {
+        response(401, "Current password is incorrect");
+    }
+ 
+    if (password_verify($newPassword, $row['Password'])) {
+        response(400, "New password must be different from current password");
+    }
+ 
+    $updated = updatePassword($decoded->user_id, $newPassword);
+ 
+    if (!$updated) {
+        response(500, "Failed to update password");
+    }
+ 
+    response(200, "Password changed successfully");
+}
 ?>
