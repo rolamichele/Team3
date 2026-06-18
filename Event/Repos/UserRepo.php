@@ -43,13 +43,14 @@ function deleteUser($id)
 function createUser($data)
 {
     global $connection;
-    $insert = "INSERT INTO users (Name, Email, Password, PhoneNumber) VALUES (:name, :email, :password, :phone)";
+    $insert = "INSERT INTO users (Name, Email, Password, PhoneNumber, Role) VALUES (:name, :email, :password, :phone, :role)";
     $query = $connection->prepare($insert);
     return $query->execute([
         ':name' => $data['Name'],
         ':email' => $data['Email'],
         ':password' => password_hash($data['Password'], PASSWORD_DEFAULT),
-        ':phone' => $data['PhoneNumber']
+        ':phone' => $data['PhoneNumber'],
+        ':role' => $data['Role']
     ]);
 }
 ?>

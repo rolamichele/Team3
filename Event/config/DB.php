@@ -2,7 +2,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$database = "eventmanagement";
+$database = "eventmanagment";
 
 try {
     $connection= new PDO("mysql:host=$host;dbname=$database", $user, $pass);

@@ -13,4 +13,16 @@ if ($_SERVER['REQUEST_METHOD']=="POST"&&$path=='/login'){
 if ($_SERVER['REQUEST_METHOD']=="GET"&&$path=='/me'){
     getMe();
 }
+if ($_SERVER['REQUEST_METHOD'] == "POST" &&$path=='/vendor/register') {
+    vendorRegister($data);
+}
+if ($_SERVER['REQUEST_METHOD'] == "POST" &&$path=='/vendor/login') {
+    vendorLogin($data);
+}
+if ($_SERVER['REQUEST_METHOD'] == "GET" &&$path=='/vendor/me') {
+    getVendorMe();
+}
+if ($_SERVER['REQUEST_METHOD']=="PATCH"&&$path=='/admin/toggleVendorStatus'){
+    toggleVendorStatus($data['vendorId']);
+}
 ?>

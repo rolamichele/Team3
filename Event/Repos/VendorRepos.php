@@ -30,6 +30,12 @@ function createVendor($data)
         $data['Description']
     ]);
 }
+function updateVendorStatus($vendorId, $status) {
+    global $connection;
+    $select = $connection->prepare("UPDATE vendors SET AcctivatedByAdmin = ? WHERE VendorID = ?");
+    $select->execute([$status, $vendorId]);
+    return $select->rowCount() > 0;
+}
 function getVendors($search, $categoryId, $location, $day, $startTime, $limit, $offset)
 {
     global $connection;
