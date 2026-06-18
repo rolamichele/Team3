@@ -46,7 +46,7 @@ function GET_PACKAGE_BY_ID()
 function CREATE_PACKAGE()
 {
     global $redis;
-    $token = VerifyToken();
+    $token = verifyToken();
     require_vendor($token);
 
     $data = json_decode(file_get_contents("php://input"), true);
@@ -72,7 +72,7 @@ function CREATE_PACKAGE()
 function UPDATE_PACKAGE()
 {
     global $redis;
-    $token = VerifyToken();
+    $token = verifyToken();
     require_vendor($token);
 
     $id   = $_GET['id'];
@@ -84,9 +84,9 @@ function UPDATE_PACKAGE()
     }
     updatePackage(
         $id,
-        $data['title']         ?? $package['Title'],
-        $data['description']   ?? $package['Description'],
-        $data['price']         ?? $package['Price'],
+        $data['title']          ?? $package['Title'],
+        $data['description']    ?? $package['Description'],
+        $data['price']          ?? $package['Price'],
         $data['activityStatus'] ?? $package['ActivityStatus']
     );
     $redis->del("package_{$id}");
@@ -99,7 +99,7 @@ function UPDATE_PACKAGE()
 function DELETE_PACKAGE()
 {
     global $redis;
-    $token = VerifyToken();
+    $token = verifyToken();
     require_vendor($token);
 
     $id = $_GET['id'];
@@ -113,10 +113,10 @@ function DELETE_PACKAGE()
 
 function ADD_REVIEW()
 {
-    $token = VerifyToken();
+    $token = verifyToken();
 
-    if ($token->role !== 'Client') {
-        response(403, "Access denied. Only users can review.");
+    if ($token->role !== 'client') {
+        response(403, "Access denied. Only clients can review.");
         return;
     }
 
