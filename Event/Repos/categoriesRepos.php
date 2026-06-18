@@ -6,7 +6,7 @@ function getAllcategories($limit, $offset){
 
     global $connection;
 
-    $getAll = $pdo->prepare(
+    $getAll = $connection->prepare(
         "SELECT * FROM categories
          LIMIT ? OFFSET ?"
     );
@@ -22,9 +22,9 @@ function getAllcategories($limit, $offset){
 
 function getcategoriesById($id) {
 
-    global $pdo;
+    global $connection;
 
-    $getById = $pdo->prepare("SELECT * FROM categories WHERE CategoryID = ?");
+    $getById = $connection->prepare("SELECT * FROM categories WHERE CategoryID = ?");
 
     $getById->execute([$id]);
 
@@ -40,7 +40,7 @@ function update_categorie($id, $name, $description){
             SET Name = ?, Description = ?
             WHERE CategoryID = ?";
 
-    $stmt = $pdo->prepare($sql);
+    $stmt = $connection->prepare($sql);
 
     return $stmt->execute([
         $name,
@@ -58,7 +58,7 @@ function delete($id)
     
     $sql = "DELETE FROM categories WHERE CategoryID = ?";
 
-    $stmt = $pdo->prepare($sql);
+    $stmt = $connection->prepare($sql);
 
     return $stmt->execute([$id]);
 }
