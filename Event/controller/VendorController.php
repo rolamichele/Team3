@@ -4,7 +4,7 @@ require_once "../helper/response.php";
 require_once "../helper/Jwt.php";
 require_once "../Repos/vendorRepos.php";
 require_once "../config/cache.php";
-require_once "../helper/jwt.php";
+
 
 function vendorRegister($data)
 {
