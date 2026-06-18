@@ -7,14 +7,21 @@ function getVendorByEmail($email)
             $select->execute([$email]);
             return $select->fetch(PDO::FETCH_ASSOC);
 }
-// function getVendorById($id)
+// function getById($id)
 // {
 //     global $connection;
 //     $select=$connection->prepare("select VendorID, CategoryID, Name, Email, PhoneNumber,
-//                 Description, ActivityStatus, Role, Review from vendors where VendorID = ?");
+//                 Description, ActivityStatus, Role from vendors where VendorID = ?");
 //             $select->execute([$id]);
 //             return $select->fetch(PDO::FETCH_ASSOC);
 // }
+
+function updateVendorStatus($vendorId, $status) {
+    global $connection;
+    $update = $connection->prepare("UPDATE vendors SET AcctivatedByAdmin = ? WHERE VendorID = ?");
+    $update->execute([$status, $vendorId]);
+    return $update->rowCount() > 0;
+}
 function createVendor($data)
 {
     global $connection;
@@ -30,12 +37,6 @@ function createVendor($data)
         $data['Description']
     ]);
 }
-function updateVendorStatus($vendorId, $status) {
-    global $connection;
-    $update = $connection->prepare("UPDATE vendors SET AcctivatedByAdmin = ? WHERE VendorID = ?");
-    $update->execute([$status, $vendorId]);
-    return $update->rowCount() > 0;
-}
 function getVendors($search, $categoryId, $location, $day, $startTime, $limit, $offset)
 {
     global $connection;
@@ -47,7 +48,7 @@ function getVendors($search, $categoryId, $location, $day, $startTime, $limit, $
             COALESCE(r_stats.TotalReviews, 0) AS TotalReviews
         FROM vendors v
         LEFT JOIN (
-            SELECT
+            SELECT 
                 VendorID,
                 ROUND(AVG(Rate), 1) AS AvgRate,
                 COUNT(ReviewID) AS TotalReviews
@@ -56,6 +57,7 @@ function getVendors($search, $categoryId, $location, $day, $startTime, $limit, $
         ) r_stats ON v.VendorID = r_stats.VendorID
     ";
 
+   
     if (!empty($location)) {
         $query .= " LEFT JOIN location l ON v.VendorID = l.VendorID";
     }
@@ -65,9 +67,9 @@ function getVendors($search, $categoryId, $location, $day, $startTime, $limit, $
     }
 
     $query .= " WHERE 1=1";
-
     $params = [];
 
+    
     if (!empty($search)) {
         $query .= " AND v.Name LIKE :search";
         $params['search'] = "%$search%";
@@ -77,6 +79,7 @@ function getVendors($search, $categoryId, $location, $day, $startTime, $limit, $
         $query .= " AND v.CategoryID = :categoryId";
         $params['categoryId'] = $categoryId;
     }
+
 
     if (!empty($location)) {
         $query .= "
@@ -89,37 +92,60 @@ function getVendors($search, $categoryId, $location, $day, $startTime, $limit, $
         $params['location'] = "%$location%";
     }
 
+    
     if (!empty($day)) {
         $query .= " AND ats.Day = :day AND ats.Status = 'Available'";
         $params['day'] = $day;
     }
 
     if (!empty($startTime)) {
-        $query .= " AND :startTime BETWEEN ats.StartTime AND ats.EndTime
-                    AND ats.Status = 'Available'";
+        $query .= " AND :startTime BETWEEN ats.StartTime AND ats.EndTime AND ats.Status = 'Available'";
         $params['startTime'] = $startTime;
     }
 
-    $query .= "
-        GROUP BY v.VendorID
-        ORDER BY v.VendorID DESC
-        LIMIT :limit OFFSET :offset
-    ";
+    $query .= " GROUP BY v.VendorID ORDER BY v.VendorID DESC LIMIT :limit OFFSET :offset";
 
     $stmt = $connection->prepare($query);
 
+   
     foreach ($params as $key => $value) {
         $stmt->bindValue(":$key", $value, PDO::PARAM_STR);
     }
 
+  
     $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
     $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
 
     $stmt->execute();
+    $vendors = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    
+    foreach ($vendors as &$vendor) {
+        $vendorId = $vendor['VendorID'];
+
+     
+        $locStmt = $connection->prepare("
+            SELECT Country, Governorate, City, Address 
+            FROM location 
+            WHERE VendorID = :vendorId
+        ");
+        $locStmt->execute(['vendorId' => $vendorId]);
+        $vendor['locations'] = $locStmt->fetchAll(PDO::FETCH_ASSOC);
+
+       
+        $slotsStmt = $connection->prepare("
+            SELECT Day, StartTime, EndTime, Status 
+            FROM availabletimeslots 
+            WHERE VendorID = :vendorId AND Status = 'Available'
+        ");
+        $slotsStmt->execute(['vendorId' => $vendorId]);
+        $vendor['time_slots'] = $slotsStmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    return $vendors;
 }
-function getVendorId($vendorId)
+function getById($vendorId)
 {
     global $connection;
 
@@ -170,127 +196,80 @@ function getVendorId($vendorId)
 
     return $vendor;
 }
-
-function getActiveVendorsOnly($limit, $offset)
-{
+// ==========================================
+// 1. دالة جلب البيانات النشطة بالصفحات فقط
+// ==========================================
+function getActiveVendorsOnly($limit, $offset){
    global $connection;
-
-    $query = "
-        SELECT
-            v.*,
-            COALESCE(r_stats.AvgRate, 0) AS AvgRate,
-            COALESCE(r_stats.TotalReviews, 0) AS TotalReviews
-        FROM vendors v
-        LEFT JOIN (
-            SELECT 
-                VendorID,
-                ROUND(AVG(Rate), 1) AS AvgRate,
-                COUNT(ReviewID) AS TotalReviews
-            FROM reviews
-            GROUP BY VendorID
-        ) r_stats ON v.VendorID = r_stats.VendorID
-        WHERE v.ActivityStatus = 'Active' 
-        ORDER BY v.VendorID DESC
-        LIMIT :limit OFFSET :offset
-    ";
-
+    $query = "SELECT v.*,COALESCE(r_stats.AvgRate, 0) AS AvgRate,
+        COALESCE(r_stats.TotalReviews, 0) AS TotalReviews FROM vendors v
+        LEFT JOIN (SELECT VendorID,ROUND(AVG(Rate), 1) AS AvgRate,
+        COUNT(ReviewID) AS TotalReviews
+        FROM reviews GROUP BY VendorID) r_stats ON v.VendorID = r_stats.VendorID
+        WHERE v.ActivityStatus = 'Active' ORDER BY v.VendorID DESC
+        LIMIT :limit OFFSET :offset";
     $stmt = $connection->prepare($query);
-
     $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
     $stmt->execute();
-    
     $vendors = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    foreach ($vendors as &$vendor) {
-        $vendorId = $vendor['VendorID'];
-
+    foreach ($vendors as &$vendor) {$vendorId = $vendor['VendorID'];
         $locStmt = $connection->prepare("SELECT Country, Governorate, City, Address FROM location WHERE VendorID = :vendorId");
         $locStmt->execute(['vendorId' => $vendorId]);
         $vendor['locations'] = $locStmt->fetchAll(PDO::FETCH_ASSOC);
-
         $slotsStmt = $connection->prepare("SELECT Day, StartTime, EndTime, Status FROM availabletimeslots WHERE VendorID = :vendorId AND Status = 'Available'");
         $slotsStmt->execute(['vendorId' => $vendorId]);
         $vendor['time_slots'] = $slotsStmt->fetchAll(PDO::FETCH_ASSOC);
     }
-
     return $vendors;
 }
-function countAllActiveVendorsOnly()
-{
-     global $connection;
-
-    
+function countAllActiveVendorsOnly(){
+    global $connection;
     $query = "SELECT COUNT(DISTINCT v.VendorID) AS total FROM vendors v WHERE v.ActivityStatus = 'Active'";
-    
     $stmt = $connection->prepare($query);
     $stmt->execute();
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
     return (int)$result['total'];
 }
 function countVendors($search, $categoryId, $location, $day, $startTime)
 {
     global $connection;
-
     $query = "SELECT COUNT(DISTINCT v.VendorID) AS total FROM vendors v";
-
-    
     if (!empty($location)) {
         $query .= " LEFT JOIN location l ON v.VendorID = l.VendorID";
     }
-
     if (!empty($day) || !empty($startTime)) {
         $query .= " LEFT JOIN availabletimeslots ats ON v.VendorID = ats.VendorID";
     }
-
     $query .= " WHERE 1=1";
     $params = [];
-
-
     if (!empty($search)) {
         $query .= " AND v.Name LIKE :search";
         $params['search'] = "%$search%";
     }
-
-  
     if (!empty($categoryId)) {
         $query .= " AND v.CategoryID = :categoryId";
         $params['categoryId'] = $categoryId;
     }
-
-    
     if (!empty($location)) {
-        $query .= "
-            AND (
-                l.City LIKE :location
-                OR l.Governorate LIKE :location
-                OR l.Country LIKE :location
-            )
-        ";
+        $query .= "AND (l.City LIKE :location OR l.Governorate LIKE :location
+        OR l.Country LIKE :location)";
         $params['location'] = "%$location%";
     }
-
     if (!empty($day)) {
         $query .= " AND ats.Day = :day AND ats.Status = 'Available'";
         $params['day'] = $day;
     }
-
-  
     if (!empty($startTime)) {
         $query .= " AND :startTime BETWEEN ats.StartTime AND ats.EndTime AND ats.Status = 'Available'";
         $params['startTime'] = $startTime;
     }
-
     $stmt = $connection->prepare($query);
-
     foreach ($params as $key => $value) {
         $stmt->bindValue(":$key", $value, PDO::PARAM_STR);
     }
-
     $stmt->execute();
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
-
     return $result['total'];
 }
 function ActivateVendor($connection, $id)
@@ -312,16 +291,16 @@ function ActivateVendor($connection, $id)
 
     
     $newStatus = ($currentStatus === 'Active') ? 'Inactive' : 'Active';
-
     // 3. update
-    $updateQuery = "UPDATE vendors SET ActivityStatus = :status WHERE VendorID = :id";
+    $updateQuery = "UPDATE vendors SET ActivityStatus = ? WHERE VendorID = ?";
 
     $updateStmt = $connection->prepare($updateQuery);
 
-    $updateStmt->bindValue(":status", $newStatus, PDO::PARAM_STR);
-    $updateStmt->bindValue(":id", $id, PDO::PARAM_INT);
+    // $updateStmt->bindValue(":status", $newStatus, PDO::PARAM_STR);
+    // $updateStmt->bindValue(":id", $id, PDO::PARAM_INT);
 
-    return $updateStmt->execute();
+    return $updateStmt->execute([$newStatus,$id]);
+    
 }
 function updateVendorData($vendorId, $data)
 {
@@ -407,7 +386,7 @@ function updateVendorData($vendorId, $data)
                 'country' => $loc['country'],
                 'governorate' => $loc['governorate'],
                 'city' => $loc['city'],
-                'address' => $loc['address'] ?? null 
+                'address' => $loc['address'] ?? null // استخدام تلافي الخطأ في حال لم يُرسل العنوان
             ]);
         }
 

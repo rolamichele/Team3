@@ -6,14 +6,14 @@ function getAllPackages($page = 1, $limit = 10) {
     $offset = (int)(($page - 1) * $limit);
     $limit  = (int)$limit;
     $getAll = $connection->query("SELECT * FROM `packages` LIMIT $limit OFFSET $offset");
-    return $getAll->fetchAll();
+    return $getAll->fetchAll(PDO::FETCH_ASSOC);
 }
 
 function getPackageById($id) {
     global $connection;
     $getById = $connection->prepare("SELECT * FROM `packages` WHERE PackageID = ?");
     $getById->execute([$id]);
-    return $getById->fetch();
+    return $getById->fetch(PDO::FETCH_ASSOC);
 }
 
 function createPackage($vendorId, $title, $description, $price, $activity_status = 'Active') {
@@ -35,18 +35,27 @@ function deletePackage($id) {
     return $delete->execute([$id]);
 }
 
-function canReview($orderId, $userId) {
+function canReview($vendorId, $userId) {
     global $connection;
-    $check = $connection->prepare("SELECT OrderID FROM orders WHERE OrderID = ? AND UserID = ? AND Status = 'Completed' AND IsReviewed = 0");
-    $check->execute([$orderId, $userId]);
+    $check = $connection->prepare("SELECT OrderID FROM orders 
+    WHERE VendorID = ? AND UserID = ? AND Status = 'Completed'");
+    $check->execute([$vendorId, $userId]);
     return $check->fetch(PDO::FETCH_ASSOC);
 }
 
 function addReview($orderId, $userId, $rating, $comment) {
     global $connection;
-    if (!canReview($orderId, $userId)) {
+    $canReview = canReview($orderId, $userId);
+    if (!$canReview){
         return false;
     }
-    $update = $connection->prepare("UPDATE orders SET Rating = ?, Comment = ?, IsReviewed = 1 WHERE OrderID = ? AND UserID = ?");
-    return $update->execute([$rating, $comment, $orderId, $userId]);
+    $query =$connection->prepare("SELECT * FROM reviews WHERE OrderID=?");
+
+    $query->execute([$canReview['OrderID']]);
+    $Query = $query->fetch(PDO::FETCH_ASSOC);
+        if ($Query){
+        return false;
+    }
+    $update = $connection->prepare("INSERT INTO reviews VALUES (Null,?,?,?,?,?) ");
+    return $update->execute([$userId, $orderId, $canReview['OrderID'], $rating,$comment]);
 }

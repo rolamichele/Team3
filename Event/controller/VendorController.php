@@ -4,6 +4,87 @@ require_once "../helper/response.php";
 require_once "../helper/Jwt.php";
 require_once "../Repos/vendorRepos.php";
 require_once "../config/cache.php";
+require_once "../helper/jwt.php";
+
+function vendorRegister($data)
+{
+    $name= $data['Name'];
+    $email = $data['Email'];
+    $password = $data['Password' ];
+    $phone = $data['PhoneNumber'];
+    $categoryId = $data['CategoryID'] ?? null;
+    $description = $data['Description'];
+    if (!$name || !$email || !$password) {
+        response(400, "Name, email, and password are required");
+    }
+    if(!filter_var($email, FILTER_VALIDATE_EMAIL)){
+        response(400,"email format is wrong");
+    }
+    if(!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$&*+])[A-Za-z\d!@#$&*+]{8,64}$/",$password)){
+    echo "password must include uppercase";}
+    if (!$categoryId) {
+        response(400, "CategoryID is required");
+    }
+    $vendorEmail = getVendorByEmail($email);
+    if($vendorEmail){
+        response(409,"Email already registered");
+    }
+    $vendorId = createVendor([
+    'Name' => $name,
+    'Email' => $email,
+    'Password' => $password,
+    'PhoneNumber' => $phone,
+    'CategoryID' => $categoryId,
+    'Description' => $description
+]);
+
+    if (!$vendorId) {
+        response(409, "Email already in use");
+    }
+ 
+    response(201, "Vendor registered successfully");
+}
+
+function vendorLogin($data){
+        $email=$data['Email'];
+        $password=$data['Password'];
+        if (!$email || !$password)
+            {
+                response(400, "Email and password are required");
+            }
+        if(!filter_var($email,FILTER_VALIDATE_EMAIL))
+            {
+                response(400,['Invalid email format']);
+            }
+        $vendor=getVendorByEmail($email);
+        if(!$vendor)
+            {
+                response(404,['vendor not found']);
+            }
+        if(!password_verify($password,$vendor['Password']))
+            {
+                response(401,['Incorrect password']);
+            }
+            if (!$vendor['AcctivatedByAdmin']) {
+        response(403, "Your account is not active yet. Please wait for admin approval.");}
+        $token=GenerateToken([
+        'UserID'   => $vendor['VendorID'],
+        'Role' => 'Vendor'
+    ]);
+        response(200,"logged in",["token" => $token]);
+}
+function getVendorMe() {
+    $decoded = verifyToken();
+    if ($decoded->role !== 'Vendor') {
+        response(403, "Access restricted to vendors only");
+    }
+    $vendor = getVendorById($decoded->user_id);
+    if (!$vendor) {
+        response(404, "Vendor not found");
+    }
+ 
+    response(200, "Vendor fetched", $vendor);
+}
 
 function getAllVendors()
 {
@@ -91,7 +172,7 @@ function getAllVendors()
     
     $redis->setex(
         $cacheKey,
-        3600,
+        60,
         json_encode($responseData)
     );
 
@@ -102,17 +183,13 @@ function getAllVendors()
         $meta
     );
 }
-function getVendorById($vendorId)
-{
-    global $redis;
 
+function getVendorById($vendorId){
+    global $redis;
     if (!$vendorId) {
         return response(400, "Vendor ID is required");
-    }
-
-    
+    }    
     $cacheKey = "vendor_detail:" . $vendorId;
-
     $cachedData = $redis->get($cacheKey);
 
     if ($cachedData) {
@@ -125,21 +202,15 @@ function getVendorById($vendorId)
         );
     }
 
-
-    $vendor = getVendorId($vendorId);
-
-   
+    $vendor = getById($vendorId);   
     if (!$vendor) {
         return response(404, "Vendor not found");
     }
-
-  
     $redis->setex(
         $cacheKey,
         3600,
         json_encode($vendor)
     );
-
     return response(
         200,
         "Vendor detailed data fetched successfully",
@@ -189,10 +260,9 @@ function getActiveVendors()
 }
 function VendorStatus($connection)
 {
-     $verifiedToken = verifyToken();
-     require_vendor($verifiedToken);
+    //  $verifiedToken = verifyToken();
+    //  require_vendor($verifiedToken);
     $vendorId = $_GET['vendor_id'] ?? null;
-
     if (!$vendorId) {
         return response(400, "Vendor ID is required");
     }
@@ -200,6 +270,12 @@ function VendorStatus($connection)
     $result = ActivateVendor($connection, $vendorId);
 
     if ($result) {
+        global $redis;
+        $cacheKey = "vendor_detail:" . $vendorId;
+        if($redis){
+            if($redis->exists($cacheKey)){
+            $redis->del($cacheKey);}
+        }
         return response(200, "Vendor status change successfully");
     }
 
@@ -207,8 +283,8 @@ function VendorStatus($connection)
 }
 function updateVendor()
 {
-    $verifiedToken = verifyToken();
-    require_vendor($verifiedToken);
+    // $verifiedToken = verifyToken();
+    // require_vendor($verifiedToken);
 
     $vendorId = $_GET['vendor_id'] ?? null;
 
@@ -244,7 +320,7 @@ function updateVendor()
 }
 function getTopRatedVendors()
 {
-    global $redis;
+    // global $redis;
 
     
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -255,14 +331,14 @@ function getTopRatedVendors()
     $offset = ($page - 1) * $pageSize;
 
    
-    $cacheKey = "vendors:all_top_rated_absolute" . $page . ":size:" . $pageSize;
+    // $cacheKey = "vendors:all_top_rated_absolute" . $page . ":size:" . $pageSize;
 
     
-    $cachedData = $redis->get($cacheKey);
-    if ($cachedData) {
-        $cachedData = json_decode($cachedData, true);
-        return response(200, "Top rated vendors fetched successfully (from cache)", $cachedData["data"], $cachedData["meta"]);
-    }
+    // $cachedData = $redis->get($cacheKey);
+    // if ($cachedData) {
+    //     $cachedData = json_decode($cachedData, true);
+    //     return response(200, "Top rated vendors fetched successfully (from cache)", $cachedData["data"], $cachedData["meta"]);
+    // }
 
     
     $vendors = getTopRated($pageSize, $offset);
@@ -278,10 +354,10 @@ function getTopRatedVendors()
         "hasPrev" => $page > 1
     ];
 
-    $responseData = ["data" => $vendors, "meta" => $meta];
+    // $responseData = ["data" => $vendors, "meta" => $meta];
 
     
-    $redis->setex($cacheKey, 3600, json_encode($responseData));
+    // $redis->setex($cacheKey, 3600, json_encode($responseData));
 
     return response(200, "Top rated vendors fetched successfully", $vendors, $meta);
 }

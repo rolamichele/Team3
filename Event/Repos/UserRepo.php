@@ -40,6 +40,7 @@ function deleteUser($id)
     $query = $connection->prepare($delete);
     return $query->execute([':id' => $id]);
 }
+
 function createUser($data)
 {
     global $connection;

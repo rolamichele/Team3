@@ -6,15 +6,37 @@ require_once "../Config/DB.php";
 require_once '../vendor/autoload.php';
 require_once '../Repos/userRepo.php';
 require_once '../Config/mail.php';
-
+require_once '../helper/Jwt.php';
 
 function orders(){
+    $verifyToken = verifyToken();
+    $role = $verifyToken->role;
+    if($role=='Admin'){
+    if(isset($_GET['page']) && isset($_GET['limit'])){
+        $page = (int)$_GET['page'];
+        $limit = (int)$_GET['limit'];
+
+        
+        $orders = GetOrderPage($page, $limit);
+    }else {
+        $orders = GetAllOrders();
+    }
+    }elseif($role=='Client'){
     if(isset($_GET['page']) && isset($_GET['limit'])){
         $page = (int)$_GET['page'];
         $limit = (int)$_GET['limit'];
         $orders = GetOrderPage($page, $limit);
     }else {
-        $orders = GetAllOrders();
+        $orders = GetUserOrders($verifyToken->user_id);
+    }
+    }elseif($role=='Vendor'){
+    if(isset($_GET['page']) && isset($_GET['limit'])){
+        $page = (int)$_GET['page'];
+        $limit = (int)$_GET['limit'];
+        $orders = GetOrderPage($page, $limit);
+    }else {
+        $orders = GetVendorOrders($verifyToken->user_id);
+    }
     }
         foreach ($orders as $order) {
         if (time() >= strtotime($order['EndTime'])) {
@@ -38,12 +60,18 @@ function OrderID($id){
 }
 
 function AddOrder($data){
+    $user = verifyToken();
+    $userData = $user->user_id;
     $existingOrder = GetOrderByDate($data['StartTime']);
     if($existingOrder){
         response(400, "Date is already booked.");
     }
-    CreateOrder($data['UserID'],$data['VendorID'],$data['StartTime'],$data['EndTime']);
-    $user = getUserById($data['UserID']);
+    
+    if(empty($data['VendorID'])||empty($data['StartTime'])||empty($data['EndTime'])||empty($data['PackageID'])){
+        response(400,"Data doesn't exist");
+    }
+    CreateOrder($userData,$data['VendorID'],$data['StartTime'],$data['EndTime'],$data['PackageID']);
+    $user = getUserById($userData);
     sendMail($user['Email'],
     "Order Confirmation",
     "Your order has been created successfully");
@@ -55,22 +83,22 @@ function OrderDel($id){
     if (!$order){
         response (404,"Order doesn't exist.");
     }
-    if (strtotime($order['StartTime'])-time()>=86400){
+    if (strtotime($order['StartTime'])-time()<=86400){
         response(400, "Can't cancel order within 24hrs of event.");
     }
     CancelOrder($id);
     response (200, "Order deleted successfully");
 }
 
-function EditOrder($id,$time,$status="pending"){
+function EditOrder($id,$packageid,$time,$endtime,$status="pending"){
     $order = GetOrderById($id);
     if (!$order){
         response (404,"Order doesn't exist.");
     }
-    if (strtotime($order['StartTime'])-time()>=86400){
+    if (strtotime($order['StartTime'])-time()<=86400){
         response(400, "Can't edit order within 24hrs of event.");
     }
-    UpdateOrder($id,$time,$status);
+    UpdateOrder($id,$packageid,$time,$endtime,$status);
     response(200,"Order edited successfully.");
 }
 
@@ -83,12 +111,17 @@ function CompletedStatus($order){
     return $order['Status'];
 }
 
-function Wallet($vendorId){
-    $data = CalcPrice($vendorId);
+function Wallet(){
+    $verifyToken = verifyToken();
+    if($verifyToken->role=='Vendor'){
+    $data = CalcPrice($verifyToken->user_id);
     response(200, "Total price retrieved.", [
         'Amount to be received' => $data['PendingAmount'],
         'Received Amount' => $data['CompletedAmount']
     ]);
+    }else{
+        response(404,"Forbidden");
+    }
 }
 
 ?>

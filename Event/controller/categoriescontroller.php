@@ -52,9 +52,7 @@ function getById($id)
 }
 
 function insert($data) {
-  
     global $redis; 
-
     try {
         $name = $data['Name'] ?? null;
         $description = $data['Description'] ?? null;
@@ -65,13 +63,21 @@ function insert($data) {
         }
 
         
-        insert_category($name, $description);
+if (isset($redis)) {
+    $iterator = 0;
 
-        
-        if (isset($redis)) {
-            $redis->del('categories:all');
+    do {
+        list($iterator, $results) = $redis->scan($iterator, [
+            'match' => 'categories:*'
+        ]);
+
+        foreach ($results as $key) {
+            $redis->del($key);
         }
 
+    } while ($iterator != 0);
+}
+    insert_category($name, $description);
        response(201, "Category Created Successfully.");
 
     } catch (Exception $e) {
@@ -94,9 +100,19 @@ function update($id) {
         update_categorie($id, $name, $description);
 
         if (isset($redis)) {
-            $redis->del(['categories:all', 'category:' . $id]);
+    $iterator = 0;
+
+    do {
+        list($iterator, $results) = $redis->scan($iterator, [
+            'match' => 'categories:*'
+        ]);
+
+        foreach ($results as $key) {
+            $redis->del($key);
         }
-        
+
+    } while ($iterator != 0);
+}
         response(200, "Category Updated Successfully.");
         
     } catch (Exception $e) {
@@ -110,10 +126,20 @@ function deleteCategory($id)
      
         delete_categorie($id); 
 
-        if (isset($redis)) {
-            $redis->del(['categories:all', 'category:' . $id]);
+if (isset($redis)) {
+    $iterator = 0;
+
+    do {
+        list($iterator, $results) = $redis->scan($iterator, [
+            'match' => 'categories:*'
+        ]);
+
+        foreach ($results as $key) {
+            $redis->del($key);
         }
-    
+
+    } while ($iterator != 0);
+}
         response(200, "Category Deleted Successfully.");
 
     } catch (Exception $e) {

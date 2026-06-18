@@ -1,17 +1,14 @@
 <?php
 require_once '../helper/response.php';
-require_once __DIR__ . '/../vendor/autoload.php'; 
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 function GenerateToken($user)
 {
-    $userId = $user['UserID'] ?? $user['VendorID'] ?? null;
-    $role = strtolower($user['Role'] ?? $user['role'] ?? '');
         $payload=[
             "iat"=>time(),
             "exp"=>time()+ 3600,
-            "user_id"=>$userId,
-            "role" => $role
+            "user_id"=>$user['UserID']??$user['VendorID'],
+            "role" =>$user['Role']  
             ];
      return JWT::encode($payload,"B0RN0Jx6muUoyGJGmahlRiQJ6mpNXEDQShyHT8bCbYp", 'HS256');
 }
@@ -31,12 +28,12 @@ function verifyToken(){
     }
 }
 function require_vendor($verifiedToken) {
-    if($verifiedToken->role !=="vendor"){
+    if($verifiedToken->role !=="Vendor"){
         response(403, 'Access denied. vendor privileges required.');
     }
 }
 function require_admin($decodedToken){
-    if ($decodedToken->role!=="admin"){
+    if ($decodedToken->role!=="Admin"){
         response(403,"you are not authorized to access this resource");
     }
 }

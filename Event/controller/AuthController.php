@@ -2,7 +2,6 @@
 require_once '../helper/response.php';
 require_once '../helper/jwt.php';
 require_once '../Repos/userRepo.php';
-require_once '../Repos/VendorRepos.php';
 
 function signup($data)
 {
@@ -10,10 +9,6 @@ function signup($data)
     $email = $data['Email'];
     $password = $data['Password' ];
     $phone = $data['PhoneNumber'];
-    $role = $data['Role'] ?? 'Client';
-    if (!in_array($role, ['Client', 'Admin'])) {
-    response(400, 'Invalid role');
-}
     if (!$name || !$email || !$password) {
         response(400, "Name, email, and password are required");
     }
@@ -21,19 +16,17 @@ function signup($data)
         response(400,"email format is wrong");
     }
     if(!preg_match("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$&*+])[A-Za-z\d!@#$&*+]{8,64}$/",$password)){
-    echo "password must include uppercase";}
+    response (400,"password must include uppercase");}
+    $emailTaken = getUserByEmail($email);
+    if($emailTaken){
+        response(409, "Email already in use");
+    }
     $userId = createUser([
     'Name' => $name,
     'Email' => $email,
     'Password' => $password,
-    'PhoneNumber' => $phone,
-    'Role' => $role
+    'PhoneNumber' => $phone
 ]);
-
-    if (!$userId) {
-        response(409, "Email already in use");
-    }
- 
     response(201, "User registered successfully");
 }
 function login($data){
@@ -69,6 +62,14 @@ function getMe() {
     response(200, "User fetched", $user);
 }
 
+function GetAll(){
+    $decoded = verifyToken();
+    if ($decoded->role=='Admin') {
+        response(403, "Unauthorized");
+    }
+    $user = getAllUsers();
+    response(200, "Users fetched", $user);
+}
 function vendorRegister($data)
 {
     $name= $data['Name'];
@@ -132,7 +133,7 @@ function getVendorMe()
     $decoded = verifyToken();
     require_vendor($decoded);
 
-    $vendor = getVendorId($decoded->user_id);
+    $vendor = getById($decoded->user_id);
     if (!$vendor) {
         response(404, "Vendor not found");
     }
@@ -149,7 +150,7 @@ function toggleVendorStatus($vendorId) {
         response(400, "Vendor ID is required");
     }
  
-    $vendor = getVendorId($vendorId);
+    $vendor = getById($vendorId);
  
     if (!$vendor) {
         response(404, "Vendor not found");
