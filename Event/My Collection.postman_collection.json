@@ -1,0 +1,1153 @@
+{
+  "info": {
+    "_postman_id": "e1db7d11-d3a0-4895-9e5f-915175e22c39",
+    "name": "My Collection",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "55896885",
+    "_collection_link": "https://go.postman.co/collection/55896885-e1db7d11-d3a0-4895-9e5f-915175e22c39?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Category",
+      "item": [
+        {
+          "name": "Get all",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/categories.php",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "categories.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get by Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/categories.php?id=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "categories.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add category",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Name\": \"الالكترونيات\",\r\n    \"Description\": \"قسم خاص بجميع الأجهزة الإلكترونية والكهربائية\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/categories.php",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "categories.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update category",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"Name\": \"Decoration\",\r\n  \"Description\": \"Event decoration services including flowers, light\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/categories.php?id=9",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "categories.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "9"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"Name\": \"Decoration\",\r\n  \"Description\": \"Event decoration services including flowers, light\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/categories.php?id=9",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "categories.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "9"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "SignUp",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Name\": \"Mariam\",\r\n    \"Email\": \"mariam@gmail.com\",\r\n    \"Password\": \"Password@123\",\r\n    \"PhoneNumber\": \"01012345678\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost/3DOS/Event Managment/Team3/Event/routes/Auth.php/signup",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "3DOS",
+                "Event Managment",
+                "Team3",
+                "Event",
+                "routes",
+                "Auth.php",
+                "signup"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Email\": \"mariam@gmail.com\",\r\n    \"Password\": \"Password@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost/3DOS/Event Managment/Team3/Event/routes/Auth.php/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "3DOS",
+                "Event Managment",
+                "Team3",
+                "Event",
+                "routes",
+                "Auth.php",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CurrentUser",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3ODE1NzA5MTgsImV4cCI6MTc4MTU3NDUxOCwidXNlcl9pZCI6MSwicm9sZSI6IkNsaWVudCJ9.ADdaOkLbvKrVuHky49wEOzLiQuHNOH-NubuLGPfmGAA",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Email\": \"mariam@gmail.com\",\r\n    \"Password\": \"Password@123\"\r\n}"
+            },
+            "url": {
+              "raw": "http://localhost/3DOS/Event Managment/Team3/Event/routes/Auth.php/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "3DOS",
+                "Event Managment",
+                "Team3",
+                "Event",
+                "routes",
+                "Auth.php",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "ActivateVendorAccByAdmin",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{json_web_token_02el}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"vendorId\": 1\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost/3DOS/Event Managment/Team3/Event/routes/Auth.php/admin/toggleVendorStatus",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "3DOS",
+                "Event Managment",
+                "Team3",
+                "Event",
+                "routes",
+                "Auth.php",
+                "admin",
+                "toggleVendorStatus"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "RegisterVendor",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "changePass",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{auth_secret_0e95}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"CurrentPassword\": \"Pass@123\",\r\n    \"NewPassword\": \"Password@123\",\r\n    \"ConfirmPassword\": \"Password@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost/3DOS/Event Managment/Team3/Event/routes/Auth.php/changePassword",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "3DOS",
+                "Event Managment",
+                "Team3",
+                "Event",
+                "routes",
+                "Auth.php",
+                "changePassword"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "VendorLogin",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"Email\": \"maram@gmail.com\",\r\n    \"Password\": \"Password@123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost/3DOS/Event Managment/Team3/Event/routes/Auth.php/vendor/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "3DOS",
+                "Event Managment",
+                "Team3",
+                "Event",
+                "routes",
+                "Auth.php",
+                "vendor",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "CurrentVendor",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{json_web_token_0d9l}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/3DOS/Event Managment/Team3/Event/routes/Auth.php/vendor/me",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "3DOS",
+                "Event Managment",
+                "Team3",
+                "Event",
+                "routes",
+                "Auth.php",
+                "vendor",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Vendor",
+      "item": [
+        {
+          "name": "Search Vendor By Name",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/Vendor.php?search=Bright Decor",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "Vendor.php"
+              ],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "Bright Decor"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filter By Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/Vendor.php?categoryId=2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "Vendor.php"
+              ],
+              "query": [
+                {
+                  "key": "categoryId",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filter By Location",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/Vendor.php?location=cairo",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "Vendor.php"
+              ],
+              "query": [
+                {
+                  "key": "location",
+                  "value": "cairo"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Combine Filters",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/Vendor.php?categoryId=2&location=cairo",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "Vendor.php"
+              ],
+              "query": [
+                {
+                  "key": "categoryId",
+                  "value": "2"
+                },
+                {
+                  "key": "location",
+                  "value": "cairo"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Activate Vendor",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "id",
+                  "value": "5",
+                  "type": "text",
+                  "uuid": "745b4b43-1bb6-4a22-978f-dace7f0ae89b"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/Vendor.php?vendor_id=3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "Vendor.php"
+              ],
+              "query": [
+                {
+                  "key": "vendor_id",
+                  "value": "3"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Filter by Day and Time",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/Vendor.php?day=Friday",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "Vendor.php"
+              ],
+              "query": [
+                {
+                  "key": "day",
+                  "value": "Friday"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Vendor data",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"Ahmed Events\",\r\n    \"description\": \"Best Event Planner\",\r\n    \"categoryId\": 2,\r\n    \"country\": \"Egypt\",\r\n    \"governorate\": \"Cairo\",\r\n    \"city\": \"Nasr City\",\r\n    \"day\": \"Friday\",\r\n    \"startTime\": \"09:00:00\",\r\n    \"endTime\": \"18:00:00\",\r\n    \"status\": \"Available\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/Vendor.php?vendor_id=3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "Vendor.php"
+              ],
+              "query": [
+                {
+                  "key": "vendor_id",
+                  "value": "3"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Vendors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/Vendor.php?",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "Vendor.php"
+              ],
+              "query": [
+                {
+                  "key": "",
+                  "value": null
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get by Id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/Vendor.php?vendor_id=3",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "Vendor.php"
+              ],
+              "query": [
+                {
+                  "key": "vendor_id",
+                  "value": "3"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Active Vendors Only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/Vendor.php?action=active-vendors",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "Vendor.php"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "active-vendors"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Top Rated(Feature)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/Team3/Event/Routes/Vendor.php?action=top-rated",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "Team3",
+                "Event",
+                "Routes",
+                "Vendor.php"
+              ],
+              "query": [
+                {
+                  "key": "action",
+                  "value": "top-rated"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Order",
+      "item": [
+        {
+          "name": "GetAllOrderByPage",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/task6/OrderRoute/OrderRoute.php/orders?page=1&limit=5",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "task6",
+                "OrderRoute",
+                "OrderRoute.php",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GetByID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/task6/OrderRoute/OrderRoute.php/orders?OrderID=2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "task6",
+                "OrderRoute",
+                "OrderRoute.php",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "OrderID",
+                  "value": "2"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "AddOrder",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"UserID\": 1,\r\n  \"VendorID\": 1,\r\n  \"StartTime\": \"2026-06-1\",\r\n  \"EndTime\": \"2026-07-20\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost/task6/OrderRoute/OrderRoute.php/orders",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "task6",
+                "OrderRoute",
+                "OrderRoute.php",
+                "orders"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "UpdateOrder",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"completed\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost/task6/OrderRoute/OrderRoute.php/orders?OrderID=4",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "task6",
+                "OrderRoute",
+                "OrderRoute.php",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "OrderID",
+                  "value": "4"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "OrderDelete",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/task6/OrderRoute/OrderRoute.php/orders?OrderID=4",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "task6",
+                "OrderRoute",
+                "OrderRoute.php",
+                "orders"
+              ],
+              "query": [
+                {
+                  "key": "OrderID",
+                  "value": "4"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Wallet",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/task6/OrderRoute/OrderRoute.php/wallet?vendorId=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "task6",
+                "OrderRoute",
+                "OrderRoute.php",
+                "wallet"
+              ],
+              "query": [
+                {
+                  "key": "vendorId",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Packages",
+      "item": [
+        {
+          "name": "getallapckages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/test/Routes/Package.php?page=1&limit=10",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "test",
+                "Routes",
+                "Package.php"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "review",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"rating\": 5,\r\n    \"comment\": \"Great package!\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost/test/Routes/Package.php?review=1&id=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "test",
+                "Routes",
+                "Package.php"
+              ],
+              "query": [
+                {
+                  "key": "review",
+                  "value": "1"
+                },
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "update",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{    \r\n    \"vendorId\": 3,\r\n    \"title\": \"updated Package\",\r\n    \"description\": \"This is a silver package\",\r\n    \"price\": 89.99,\r\n    \"activityStatus\": \"Active\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost/test/Routes/Package.php?id=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "test",
+                "Routes",
+                "Package.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "create",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{    \r\n    \"vendorId\": 1,\r\n    \"title\": \"silver Package\",\r\n    \"description\": \"This is a silver package\",\r\n    \"price\": 89.99,\r\n    \"activityStatus\": \"Active\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost/test/Routes/Package.php",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "test",
+                "Routes",
+                "Package.php"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "getbyid",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/test/Routes/Package.php?id=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "test",
+                "Routes",
+                "Package.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "delete",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/test/Routes/Package.php?id=1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "path": [
+                "test",
+                "Routes",
+                "Package.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "auth_secret_0cmc",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_02el",
+      "secret": true
+    },
+    {
+      "key": "auth_secret_0e95",
+      "secret": true
+    },
+    {
+      "key": "json_web_token_0d9l",
+      "secret": true
+    }
+  ]
+}
