@@ -19,4 +19,13 @@ if ($_SERVER['REQUEST_METHOD']=="PATCH"&&$path=='/admin/toggleVendorStatus'){
 if ($_SERVER['REQUEST_METHOD']=="PATCH"&&$path=='/changePassword'){
     changePassword($data);
 }
+if ($_SERVER['REQUEST_METHOD']=="POST"&&$path=='/signup'){
+    signup($data);
+}
+if ($_SERVER['REQUEST_METHOD']=="POST"&&$path=='/login'){
+    login($data);
+}
+if ($_SERVER['REQUEST_METHOD']=="GET"&&$path=='/me'){
+    getMe();
+}
 ?>
